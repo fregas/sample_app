@@ -12,6 +12,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       flash[:success] = "Welcome to the Sample App!"
+      sign_in @user #you have to sign in the user, or your specs checking that they are logged in will fail
       redirect_to @user
     else
       render 'new'

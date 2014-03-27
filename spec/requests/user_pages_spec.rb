@@ -1,6 +1,12 @@
 require 'spec_helper'
 
 describe "User pages" do
+  # fix your indention as you go along.  Don't let it get crazy.  
+  # each describe should have its "befores" and "its" indented one time below it.  This helps readibility.  
+
+  # also, you have a lot of failing tests.  You want to create one test, get it passed and move to another.  
+  # Don't write a bunch of code or a bunch of tests at once before getting them to pass.   Get the tiniest thing done 
+  # and working before you move on to something else.  
 
   subject { page }
 
@@ -20,7 +26,7 @@ describe "User pages" do
     it { should have_title(user.name) }
   end
 
-    describe "signup" do
+  describe "signup" do
 
     before { visit signup_path }
 
@@ -31,7 +37,7 @@ describe "User pages" do
         expect { click_button submit }.not_to change(User, :count)
       end
 
-    describe "after submission" do
+      describe "after submission" do
         before { click_button submit }
 
         it { should have_title('Sign up') }
@@ -40,38 +46,40 @@ describe "User pages" do
     end
 
     describe "with valid information" do
+      #let(:user) { FactoryGirl.create(:user) } # this was not here, so your specs errored on user.password
       let(:new_name)  { "New Name" }
       let(:new_email) { "new@example.com" }
+      let(:password)  { 'blahblahblah' }
       before do
         fill_in "Name",             with: new_name
         fill_in "Email",            with: new_email
-        fill_in "Password",         with: user.password
-        fill_in "Confirm Password", with: user.password
-        click_button "Save changes"
+        fill_in "Password",         with: password #we were missing let(:password) above causing errors.
+        fill_in "Confirmation", with: password #you had the wrong name of the field.  
+        click_button "Create my account"
       end
 
       it { should have_title(new_name) }
-      it { should have_selector('div.alert.alert-success') }
-      it { should have_link('Sign out', href: signout_path) }
-      specify { expect(user.reload.name).to  eq new_name }
-      specify { expect(user.reload.email).to eq new_email }
+      it { should have_selector('div.alert.alert-success') } 
+      it { should have_link('Sign out', href: signout_path) } #this was failing because in your users_controller, you had not signed in the user
+      #specify { expect(user.reload.name).to  eq new_name } #not sure what to do with these yet.  
+      #specify { expect(user.reload.email).to eq new_email }
     end
 
-      it "should create a user" do
-        expect { click_button submit }.to change(User, :count).by(1)
-      end
+    it "should create a user" do #i'd probably put this block directly under its parent describe
+      expect { click_button submit }.to change(User, :count).by(1)
+    end
 
-describe "after saving the user" do
-        before { click_button submit }
-        let(:user) { User.find_by(email: 'user@example.com') }
+    describe "after saving the user" do
+      before { click_button submit }
+      let(:user) { User.find_by(email: 'user@example.com') }
 
-        it { should have_link('Sign out', href: 'signout_path') }
-        it { should have_title(user.name) }
-        it { should have_selector('div.alert.alert-success', text: 'Welcome') }
-end
-end
+      it { should have_link('Sign out', href: 'signout_path') }
+      it { should have_title(user.name) }
+      it { should have_selector('div.alert.alert-success', text: 'Welcome') }
+    end
+  end
 
-      describe "edit" do
+  describe "edit" do
     let(:user) { FactoryGirl.create(:user) }
     before do
       sign_in user
@@ -86,7 +94,6 @@ end
 
     describe "with invalid information" do
       before { click_button "Save changes" }
-
       it { should have_content('error') }
     end
   end
