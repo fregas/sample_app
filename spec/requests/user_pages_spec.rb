@@ -46,10 +46,10 @@ describe "User pages" do
     end
 
     describe "with valid information" do
-      #let(:user) { FactoryGirl.create(:user) } # this was not here, so your specs errored on user.password
       let(:new_name)  { "New Name" }
       let(:new_email) { "new@example.com" }
       let(:password)  { 'blahblahblah' }
+      let!(:old_user_count) { User.count} #instead of the change spect on line 75, I am checking the count here, then checking it against the new count later.  the let with the ! symbol makes sure this runs before any tests.  
       before do
         fill_in "Name",             with: new_name
         fill_in "Email",            with: new_email
@@ -61,15 +61,22 @@ describe "User pages" do
       it { should have_title(new_name) }
       it { should have_selector('div.alert.alert-success') } 
       it { should have_link('Sign out', href: signout_path) } #this was failing because in your users_controller, you had not signed in the user
-      #specify { expect(user.reload.name).to  eq new_name } #not sure what to do with these yet.  
+      it "increments the user count" do
+        expect( User.count ).to eq(old_user_count + 1)
+      end
+      #specify { expect(user.reload.name).to  eq new_name } # I don't think these belong here.  These are checking an existing user and you are creating a new USER.  you might do something in a separate set of specs for updating existing user.  
       #specify { expect(user.reload.email).to eq new_email }
     end
 
-    it "should create a user" do #i'd probably put this block directly under its parent describe
+    #so I played around w/ this spec.  I couldn't get it to work, because 
+    #I think it needs all the setup above. "to change" just isn't a good thing to use
+    # in this situation so I would remove this. I replaced it with the "increments user count" above
+    it "should create a user" do 
       expect { click_button submit }.to change(User, :count).by(1)
     end
 
-    describe "after saving the user" do
+    describe "after saving the user" do #not sure what this set of specs is doing either.  it seems to be a dupe of the above specs
+    # in describe "with valid information"
       before { click_button submit }
       let(:user) { User.find_by(email: 'user@example.com') }
 
@@ -96,6 +103,8 @@ describe "User pages" do
       before { click_button "Save changes" }
       it { should have_content('error') }
     end
+
+    #Probably need to add specs to update a existing user here
   end
 end
   
